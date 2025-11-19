@@ -9,10 +9,21 @@ namespace AGP_Warcraft
     {
         public bool isRanged;
 
+        public int RangedStopDistance = 3;
+        public float AttackRange = 1.2f;
+        public float AttackCooldown = 1f;
+
+        private float _attackTimer = 0f;
+
         public Node CurrentPosition, Goal;
         public List<Node> CurrentPath = new List<Node>();
 
-        private Creature Target;
+        private Creature m_target;
+        public Creature Target
+        {
+            get { return m_target; }
+            set { m_target = value; }
+        }
 
         [SerializeField] private SpriteRenderer Selected;
 
@@ -20,7 +31,17 @@ namespace AGP_Warcraft
         internal bool IsSelected;
 
         private int recalculateCounter;
+        private StateManager _state;
 
+        private void Start()
+        {
+            _state= new StateManager();
+            _state.Initialize(this);
+        }
+        private void Update()
+        {
+            _state.OnUpdate();
+        }
         internal void CheckIfSelected(List<Creature> sc)
         {
             // if selected creatures contains this creature
@@ -46,7 +67,69 @@ namespace AGP_Warcraft
                 }
             }
         }
+        public Creature FindTarget()
+        {
+            var enemies = GameManager.I.SelectedCreatures
+                .Where(c => c != this)
+                .ToList();
 
+            if (enemies.Count == 0)
+                return null;
+
+            return enemies
+                .OrderBy(e => Vector2.Distance(transform.position, e.transform.position))
+                .First();
+        }
+        public bool InAttackRange(Creature target)
+        {
+            if (target == null) return false;
+
+            float dist = Vector2.Distance(transform.position, target.transform.position);
+            return dist <= AttackRange;
+        }
+        public void CalculatePathTo(Creature target)
+        {
+            if (target == null) return;
+
+            Goal = target.CurrentPosition;
+
+            CurrentPath = GameManager.I.AStar.GetShortestPath(CurrentPosition, Goal);
+            CurrentPath.Remove(CurrentPosition);
+
+        if (isRanged)
+            {
+                int stopDist = RangedStopDistance;
+
+                CurrentPath.RemoveRange(
+                    Mathf.Max(CurrentPath.Count - stopDist, 0),
+                    Mathf.Min(stopDist, CurrentPath.Count)
+                );
+            }
+        }
+        public void MoveAlongPath()
+        {
+            if (CurrentPath == null || CurrentPath.Count == 0)
+                return;
+
+            MoveToNextPathNode(); 
+        }
+        public void PerformAttack()
+        {
+            if (Target == null) return;
+            Debug.Log(name + " HIT " + Target.name);
+        }
+        public bool CanAttack()
+        {
+            _attackTimer += Time.deltaTime;
+
+            if (_attackTimer >= AttackCooldown)
+            {
+                _attackTimer = 0;
+                return true;
+            }
+
+            return false;
+        }
         internal void MoveToNextPathNode()
         {
             if (CurrentPath.Count == 0) return;
@@ -79,16 +162,22 @@ namespace AGP_Warcraft
 
         internal void MoveAndAttack(Creature target)
         {
-            Target = target;
-            Goal = Target.CurrentPosition;
+            m_target = target;
+            Goal = target.CurrentPosition;
 
             CurrentPath = GameManager.I.AStar.GetShortestPath(CurrentPosition, Goal);
             CurrentPath.Remove(CurrentPosition);
 
             if (isRanged)
             {
-                CurrentPath.RemoveRange(Mathf.Max(CurrentPath.Count - 3, 0), Mathf.Min(3, CurrentPath.Count));
+                int stopDist = RangedStopDistance;
+
+                CurrentPath.RemoveRange(
+                    Mathf.Max(CurrentPath.Count - stopDist, 0),
+                    Mathf.Min(stopDist, CurrentPath.Count)
+                );
             }
+
         }
     }
 }
