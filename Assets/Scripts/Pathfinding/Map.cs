@@ -9,6 +9,8 @@ public class Map : MonoBehaviour
     public int horizontalSize, verticalSize, obstaclePercent, goldPercent;
     public float processingInterval;
 
+    // convert 2D array to list for easier handling
+    // example: Tiles.Where(t=> t.isObstacle == false)
     public List<Node> Tiles => Nodes.Cast<Node>().ToList();
 
     [SerializeField] private GameObject WorldParent, ResourcesParent, GoldPrefab;
@@ -27,6 +29,7 @@ public class Map : MonoBehaviour
             {
                 var isBlocked = Random.Range(0, 100) < obstaclePercent ? true : false;
 
+                // if blocked, instantiate rock tile, else grass tile
                 var tile = Instantiate(isBlocked ? GameManager.I.RockTile : GameManager.I.GrassTile, new Vector2(x, y), Quaternion.identity, WorldParent.transform);
                 
                 tile.name = x + "_" + y;
@@ -63,6 +66,7 @@ public class Map : MonoBehaviour
         }
     }
 
+    // find node by name
     internal Node GetNodeByName(string name)
     {
        return Tiles.Where(t=> t.Name == name).FirstOrDefault();

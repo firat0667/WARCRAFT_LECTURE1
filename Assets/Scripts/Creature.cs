@@ -23,7 +23,9 @@ namespace AGP_Warcraft
 
         internal void CheckIfSelected(List<Creature> sc)
         {
+            // if selected creatures contains this creature
             IsSelected = sc.Contains(this);
+            // enable/disable selection sprite
             Selected.enabled = IsSelected;
         }
 

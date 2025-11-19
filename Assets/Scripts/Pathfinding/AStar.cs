@@ -56,6 +56,7 @@ namespace Pathfinding
 
             do
             {
+                //A* pathfinding: f(n) = g(n) + h(n)
                 prioQueue = prioQueue.OrderBy(x => x.MinCostToStart + Vector2.Distance(x.Point, goal.Point)).ToList();
                 var node = prioQueue.First();
                 prioQueue.Remove(node);
