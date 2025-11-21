@@ -21,6 +21,18 @@ public class IdleState : IState
     }
     public void UpdateState()
     {
+        if (_creature.IsControlledByPlayer)
+        {
+            if (_creature.HasPlayerCommand)
+            {
+                _state.ChangeState<MoveState>();
+                return;
+            }
+
+            return; 
+        }
+
+
         targetSearchTimer += Time.deltaTime;
 
         if (targetSearchTimer >= 0.5f)
@@ -31,7 +43,6 @@ public class IdleState : IState
 
         if (_creature.Target == null)
             return;
-
         if (_creature.InAttackRange(_creature.Target))
         {
             _state.ChangeState<AttackState>();
@@ -40,6 +51,7 @@ public class IdleState : IState
 
         _state.ChangeState<MoveState>();
     }
+
     public void ExitState()
     {
         Debug.Log($"{_creature.name} exited Idle State.");

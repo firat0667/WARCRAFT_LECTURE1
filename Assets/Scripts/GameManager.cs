@@ -7,6 +7,7 @@ using TechTree;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.UI;
 
 namespace AGP_Warcraft
 {
@@ -89,7 +90,12 @@ namespace AGP_Warcraft
                 
                 if (node != null && !node.isObstacle)
                 {
-                    SelectedCreatures.ForEach(sc => sc.GetPathToPoint(node));
+                    SelectedCreatures.ForEach(sc =>
+                    {
+                        sc.GetPathToPoint(node);
+                        sc.HasPlayerCommand = true;
+                        sc.Target = null;
+                    });
                 }
 
                 var creature = hit.collider.GetComponent<Creature>();
@@ -104,8 +110,13 @@ namespace AGP_Warcraft
 
                     if (creature is Human)
                     {
-                        SelectedCreatures.ForEach(sc => sc.MoveAndAttack(creature));
+                        SelectedCreatures.ForEach(sc =>
+                        {
+                            sc.MoveAndAttack(creature);
+                            sc.HasPlayerCommand = true;  
+                        });
                     }
+
                 }
             }
         }
@@ -137,6 +148,8 @@ namespace AGP_Warcraft
             var orc = Instantiate(OrcPrefab, position.Point, Quaternion.identity, UnitsParent.transform);
             orc.CurrentPosition = position;
             orc.CurrentPosition.isOccupied = true;
+            orc.CreatureTeam = Team.Orcs;
+            orc.IsControlledByPlayer = true;
 
             orc.isRanged = UnityEngine.Random.Range(0, 2) == 1 ? true : false;
         }
@@ -147,7 +160,8 @@ namespace AGP_Warcraft
             var human = Instantiate(HumanPrefab, position.Point, Quaternion.identity, UnitsParent.transform);
             human.CurrentPosition = position;
             human.CurrentPosition.isOccupied = true;
-
+            human.CreatureTeam = Team.Humans;
+            human.IsControlledByPlayer = false;
             human.isRanged = UnityEngine.Random.Range(0, 2) == 1 ? true : false;
         }
     }

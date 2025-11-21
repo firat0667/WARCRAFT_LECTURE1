@@ -38,6 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
+  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -527,6 +528,7 @@ MonoBehaviour:
       m_Calls: []
   GoldCollected: 0
   StonesCollected: 0
+  Level: 0
 --- !u!4 &1019492388
 Transform:
   m_ObjectHideFlags: 0
@@ -554,7 +556,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 64a86904e86f70945a01a542d28f3ee9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  horizontalSize: 20
+  horizontalSize: 10
   verticalSize: 10
   obstaclePercent: 30
   goldPercent: 12
@@ -578,6 +580,13 @@ MonoBehaviour:
   MineActivationFrequency: 3
   MineYieldedQuantity: 1
   MineCost: 2
+  MineMaintenance: 0
+  GoldSpawnFrequency: 0
+  GoldValue: 0
+  StoneValue: 0
+  StonesToStore: 0
+  TotalStonesNeeded: 0
+  StonesDemand: 0
 --- !u!1 &1318947573
 GameObject:
   m_ObjectHideFlags: 0

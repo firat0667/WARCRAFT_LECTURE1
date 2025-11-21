@@ -1,52 +1,53 @@
 using AGP_Warcraft;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 
 public class MoveState : IState
 {
-  private Creature _creature;
-  private StateManager _state;
-    public MoveState(Creature creature, StateManager stateManager)
+    private Creature _creature;
+    private StateManager _state;
+
+    public MoveState(Creature creature, StateManager state)
     {
-         _creature = creature;
-         _state = stateManager;
+        _creature = creature;
+        _state = state;
     }
+
     public void EnterState()
     {
-
-        if (_creature.Target != null)
-        {
+        // PLAYER PATH ALREADY SET
+        // AI PATH alýnacaksa sadece AI modunda yapýlýr:
+        if (!_creature.IsControlledByPlayer && _creature.Target != null)
             _creature.CalculatePathTo(_creature.Target);
-        }
-        Debug.Log($"{_creature.name} entered Move State.");
-        // Additional logic for entering move state
     }
+
     public void UpdateState()
     {
-        // Logic for updating move state
-        // For example, check if the creature has reached its destination to transition to IdleState
+        _creature.ProcessActions();
 
-        if (_creature.Target == null)
+        // PLAYER MOVE FINISHED
+        if (_creature.IsControlledByPlayer)
         {
-            _state.ChangeState<IdleState>();
+            if (_creature.HasPlayerCommand && _creature.CurrentPath.Count == 0)
+            {
+                _creature.HasPlayerCommand = false;
+                _state.ChangeState<IdleState>();
+                return;
+            }
+
             return;
         }
+
+        // AI
         if (_creature.InAttackRange(_creature.Target))
         {
             _state.ChangeState<AttackState>();
             return;
         }
-        _creature.MoveAlongPath();
 
         if (_creature.CurrentPath.Count == 0)
         {
-          _creature.CalculatePathTo(_creature.Target);
+            _creature.CalculatePathTo(_creature.Target);
         }
     }
-    public void ExitState()
-    {
-        Debug.Log($"{_creature.name} exited Move State.");
-        // Additional logic for exiting move state
-    }
+
+    public void ExitState() { }
 }

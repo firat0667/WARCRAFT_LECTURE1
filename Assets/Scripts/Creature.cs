@@ -5,6 +5,11 @@ using System.Linq;
 
 namespace AGP_Warcraft
 {
+    public enum Team
+    {
+        Orcs,
+        Humans
+    }
     public class Creature : MonoBehaviour
     {
         public bool isRanged;
@@ -18,7 +23,11 @@ namespace AGP_Warcraft
         public Node CurrentPosition, Goal;
         public List<Node> CurrentPath = new List<Node>();
 
+        public bool IsControlledByPlayer = false;
+        public bool HasPlayerCommand = false;
+
         private Creature m_target;
+
         public Creature Target
         {
             get { return m_target; }
@@ -33,15 +42,25 @@ namespace AGP_Warcraft
         private int recalculateCounter;
         private StateManager _state;
 
-        private void Start()
+        private Team _team;
+        public Team CreatureTeam
         {
-            _state= new StateManager();
-            _state.Initialize(this);
+            get { return _team; }
+            set { _team = value; }
         }
-        private void Update()
+        protected virtual void Start()
+        {
+            _state = new StateManager();
+            _state.Initialize(this);
+            _state.ChangeState<IdleState>();
+        }
+
+        protected virtual void Update()
         {
             _state.OnUpdate();
         }
+
+
         internal void CheckIfSelected(List<Creature> sc)
         {
             // if selected creatures contains this creature
@@ -69,8 +88,12 @@ namespace AGP_Warcraft
         }
         public Creature FindTarget()
         {
-            var enemies = GameManager.I.SelectedCreatures
-                .Where(c => c != this)
+ 
+            var allCreatures = FindObjectsOfType<Creature>();
+
+
+            var enemies = allCreatures
+                .Where(c => c != this && c.CreatureTeam != this.CreatureTeam)
                 .ToList();
 
             if (enemies.Count == 0)
@@ -80,6 +103,8 @@ namespace AGP_Warcraft
                 .OrderBy(e => Vector2.Distance(transform.position, e.transform.position))
                 .First();
         }
+
+
         public bool InAttackRange(Creature target)
         {
             if (target == null) return false;

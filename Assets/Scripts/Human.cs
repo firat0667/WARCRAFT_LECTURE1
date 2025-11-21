@@ -1,15 +1,18 @@
+using UnityEngine;
+
 namespace AGP_Warcraft
 {
     public class Human : Creature
     {
-        void Start()
+        protected override void Start()
         {
+            base.Start();
             GameManager.I.SelectionChanged.AddListener((sc) => CheckIfSelected(sc));
         }
 
-        void Update()
+        protected override void Update()
         {
-            ProcessActions();
+            base.Update(); 
         }
     }
 }

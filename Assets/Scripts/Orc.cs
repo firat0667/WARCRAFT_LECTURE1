@@ -5,16 +5,19 @@ namespace AGP_Warcraft
 {
     public class Orc : Creature
     {
-        void Start()
+        protected override void Start()
         {
+            base.Start();
             GameManager.I.SelectionChanged.AddListener((sc) => CheckIfSelected(sc));
         }
 
-        void Update()
+        protected override void Update()
         {
-            ProcessActions();
+            base.Update(); // FSM
 
-            var goldFound = GameManager.I.Map.Resources.SingleOrDefault(gr => CurrentPosition.Point == gr.GetComponent<Resource>().CurrentPosition.Point);
+            var goldFound = GameManager.I.Map.Resources
+                .SingleOrDefault(gr => CurrentPosition.Point ==
+                                       gr.GetComponent<Resource>().CurrentPosition.Point);
 
             if (goldFound != null)
             {
